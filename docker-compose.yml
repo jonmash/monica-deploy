@@ -64,7 +64,7 @@ services:
     image: monica-web
     restart: always
     ports:
-      - 80:80
+      - 2580:80
     volumes:
       - monica-data:/var/www/html/storage:ro
     depends_on:
