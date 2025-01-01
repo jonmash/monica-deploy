@@ -16,17 +16,23 @@ services:
     image: monica-app
     env_file: .env
     environment:
-      - APP_KEY_FILE=/run/secrets/app_key
-      - DB_PASSWORD_FILE=/run/secrets/mysql_password
+      - APP_KEY_FILE=/run/secrets/monica-app-key
+      - DB_PASSWORD_FILE=/run/secrets/monica-mysql-pass
+      - MAIL_USERNAME=/run/secrets/monica-smtp-user
+      - MAIL_PASSWORD=/run/secrets/monica-smtp-pass
+      - MAIL_FROM_ADDRESS=/run/secrets/monica-smtp-from-user
     volumes:
-      - data:/var/www/html/storage
+      - monica-data:/var/www/html/storage
     restart: always
     depends_on:
       - db
       - redis
     secrets:
-      - app_key
-      - mysql_password
+      - monica-app-key
+      - monica-mysql-pass
+      - monica-smtp-user
+      - monica-smtp-pass
+      - monica-smtp-from-user
 
   db:
     image: mariadb:11
@@ -34,12 +40,12 @@ services:
       - MYSQL_RANDOM_ROOT_PASSWORD=true
       - MYSQL_DATABASE=monica
       - MYSQL_USER=monica
-      - MYSQL_PASSWORD_FILE=/run/secrets/mysql_password
+      - MYSQL_PASSWORD_FILE=/run/secrets/monica-mysql-pass
     volumes:
-      - mysqldata:/var/lib/mysql
+      - monica-mysqldata:/var/lib/mysql
     restart: always
     secrets:
-      - mysql_password
+      - monica-mysql-pass
 
   redis:
     image: redis:alpine
@@ -60,20 +66,26 @@ services:
     ports:
       - 80:80
     volumes:
-      - data:/var/www/html/storage:ro
+      - monica-data:/var/www/html/storage:ro
     depends_on:
       - app
 
 
 volumes:
-  data:
-    driver: local
-  mysqldata:
-    driver: local
+  monica-data:
+    external: true
+  monica-mysqldata:
+    external: true
 
 
 secrets:
-  app_key:
+  monica-app-key:
     external: true
-  mysql_password:
+  monica-mysql-pass:
+    external: true
+  monica-smtp-user:
+    external: true
+  monica-smtp-pass:
+    external: true
+  monica-smtp-from-user:
     external: true
